@@ -2,6 +2,7 @@
 using Domain.Entities.Identity;
 using Domain.Interfaces;
 using IronXL;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SkillTracker.Dtos;
@@ -33,6 +34,7 @@ namespace SkillTracker.Controllers
 
 
         [HttpGet("getquestions")]
+        [Authorize(Policy = "ManageSkills")]
         public async Task<IList<Question>> GetQuestions()
         {
             return _questionsService.getAllQuestions();

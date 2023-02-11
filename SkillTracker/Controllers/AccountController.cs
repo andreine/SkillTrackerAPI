@@ -37,7 +37,7 @@ namespace SkillTracker.Controllers
             return new UserDto
             {
                 Email = user.Email,
-                Token = _tokenService.CreateToken(user),
+                Token =  await _tokenService.CreateToken(user),
                 FirstName = user.FirstName,
                 LastName = user.LastName,
             };
@@ -69,7 +69,7 @@ namespace SkillTracker.Controllers
             {
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                Token = _tokenService.CreateToken(user),
+                Token = await _tokenService.CreateToken(user),
                 Email = user.Email
             };
         }
@@ -99,7 +99,7 @@ namespace SkillTracker.Controllers
             {
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                Token = _tokenService.CreateToken(user),
+                Token = await _tokenService.CreateToken(user),
                 Email = user.Email
             };
         }

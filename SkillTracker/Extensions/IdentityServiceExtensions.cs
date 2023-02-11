@@ -1,5 +1,6 @@
 ﻿using Domain.Entities.Identity;
 using Infrastructure.Identity;
+using Infrastructure.Persistance;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -14,8 +15,20 @@ namespace SkillTracker.Extensions
             var builder = services.AddIdentityCore<AppUser>();
 
             builder = new IdentityBuilder(builder.UserType, builder.Services);
+            builder.AddRoles<IdentityRole>();
             builder.AddEntityFrameworkStores<AppIdentityDbContext>();
             builder.AddSignInManager<SignInManager<AppUser>>();
+
+
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("ManageSkills", policy =>
+                                  policy.RequireClaim("permissions", "manage-skills"));
+                options.AddPolicy("TakesTests", policy =>
+                                  policy.RequireClaim("permissions", "solve-tests"));
+            });
+
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
