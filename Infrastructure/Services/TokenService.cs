@@ -34,7 +34,6 @@ namespace Infrastructure.Services
         {
             var userRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
 
-
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Email, user.Email),
