@@ -3,6 +3,7 @@ using Domain.Interfaces;
 using Infrastructure.Persistance;
 using IronXL;
 using Microsoft.EntityFrameworkCore;
+using SkillTracker.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,22 @@ namespace Infrastructure.Services
         public IList<Question> getAllQuestions()
         {
             return _context.Questions.ToList();
+        }
+
+        public async Task<IList<QuestionEmployeeDto>> getAllQuestionsForEmployee()
+        {
+            var questions =  await _context.Questions.Include(x => x.QuestionCategory).Select(x => new QuestionEmployeeDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                FirstAnswer = x.FirstAnswer,
+                FourthAnswer = x.FourthAnswer,
+                SecondAnswer = x.SecondAnswer,
+                ThirdAnswer = x.ThirdAnswer,
+                QuestionCategoryId = x.QuestionCategory.Id,
+                QuestionCategoryName = x.QuestionCategory.Name
+            }).ToListAsync();
+            return questions;
         }
 
         public bool uploadFileToDatabase(WorkBook workbook)

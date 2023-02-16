@@ -41,5 +41,12 @@ namespace SkillTracker.Controllers
         }
 
 
+        [HttpGet("getquestionsemployee")]
+        public async Task<IList<QuestionEmployeeDto>> GetQuestionsEmployee()
+        {
+            var questions = await _questionsService.getAllQuestionsForEmployee();
+            return questions;
+        }
+
     }
 }
