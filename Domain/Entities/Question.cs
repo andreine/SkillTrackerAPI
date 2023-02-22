@@ -20,6 +20,7 @@ namespace Domain.Entities
         public string FourthAnswer { get; set; }
         public string CorrectAnswer { get; set; }
         public QuestionCategory QuestionCategory { get; set; }
+        public Session Session { get; set; }
 
     }
 }

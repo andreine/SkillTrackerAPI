@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class SessionSkillActivityQuestion
+    public class UserSessionQuestion
     {
         public int Id { get; set; }
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public int IsCorrect { get; set; }
         public Question Question { get; set; }
-        public SessionSkillActivity SessionSkillActivity { get; set; }
     }
 }

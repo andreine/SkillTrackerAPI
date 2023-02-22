@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Domain.Dtos;
+using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Persistance;
 using IronXL;
@@ -21,9 +22,9 @@ namespace Infrastructure.Services
             _context = context;
         }
 
-        public IList<Question> getAllQuestions()
+        public IList<Question> getAllSessionQuestions(string sessionId)
         {
-            return _context.Questions.ToList();
+            return _context.Questions.Where(x => Int32.Parse(sessionId) == x.Session.Id).ToList();
         }
 
         public async Task<IList<QuestionEmployeeDto>> getAllQuestionsForEmployee()
@@ -42,7 +43,7 @@ namespace Infrastructure.Services
             return questions;
         }
 
-        public bool uploadFileToDatabase(WorkBook workbook)
+        public bool uploadFileToDatabase(WorkBook workbook, string sessionId)
         {
             var workSheet = workbook.WorkSheets[0];
 
@@ -61,6 +62,7 @@ namespace Infrastructure.Services
                     {
                         Name = data[0].Text,
                     };
+                    var sessionToAdd = _context.Sessions.FirstOrDefault(x => x.Id == Int32.Parse(sessionId));
                     newQuestion = new Domain.Entities.Question
                     {
                         Name = data[1].Text,
@@ -69,13 +71,16 @@ namespace Infrastructure.Services
                         ThirdAnswer = data[4].Text,
                         FourthAnswer = data[5].Text,
                         CorrectAnswer = data[6].Text,
-                        QuestionCategory = newQuestionCategory
+                        QuestionCategory = newQuestionCategory,
+                        Session = sessionToAdd
                     };
                     _context.QuestionCategories.Add(newQuestionCategory);
 
                 }
                 else
                 {
+                    var sessionToAdd = _context.Sessions.FirstOrDefault(x => x.Id == Int32.Parse(sessionId));
+
                     newQuestion = new Domain.Entities.Question
                     {
                         Name = data[1].Text,
@@ -84,8 +89,11 @@ namespace Infrastructure.Services
                         ThirdAnswer = data[4].Text,
                         FourthAnswer = data[5].Text,
                         CorrectAnswer = data[6].Text,
-                        QuestionCategory = existingCategory
+                        QuestionCategory = existingCategory,
+                        Session = sessionToAdd
+
                     };
+
                 }
                 _context.Questions.Add(newQuestion);
 
@@ -93,5 +101,32 @@ namespace Infrastructure.Services
             _context.SaveChanges();
             return true;
         }
+
+
+        public async Task<string> AddNewSession(string sessionName)
+        {
+            var session = new Session
+            {
+                Created = DateTime.Now,
+                Name = sessionName
+            };
+
+            await _context.Sessions.AddAsync(session);
+            await _context.SaveChangesAsync();
+
+            return sessionName;
+        }
+
+
+
+        public async Task<IList<Session>> GetAllSessions()
+        {
+            return await _context.Sessions.ToListAsync();
+        }
+
+
+
+
+
     }
 }

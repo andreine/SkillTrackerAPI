@@ -4,6 +4,7 @@ using Infrastructure.Persistance;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations.ApplicationDb
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230220205018_addingDateToSessionTable")]
+    partial class addingDateToSessionTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,7 +55,7 @@ namespace Infrastructure.Migrations.ApplicationDb
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SessionId")
+                    b.Property<int>("SessionSkillActivityId")
                         .HasColumnType("int");
 
                     b.Property<string>("ThirdAnswer")
@@ -64,7 +66,7 @@ namespace Infrastructure.Migrations.ApplicationDb
 
                     b.HasIndex("QuestionCategoryId");
 
-                    b.HasIndex("SessionId");
+                    b.HasIndex("SessionSkillActivityId");
 
                     b.ToTable("Questions");
                 });
@@ -86,7 +88,7 @@ namespace Infrastructure.Migrations.ApplicationDb
                     b.ToTable("QuestionCategories");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Session", b =>
+            modelBuilder.Entity("Domain.Entities.SessionSkillActivity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -94,34 +96,14 @@ namespace Infrastructure.Migrations.ApplicationDb
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Sessions");
-                });
-
-            modelBuilder.Entity("Domain.Entities.UserSession", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("ActivationDate")
+                    b.Property<DateTime>("ActivityDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("IsCompleted")
                         .HasColumnType("int");
 
-                    b.Property<int>("SessionId")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("LastCompleted")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -129,12 +111,10 @@ namespace Infrastructure.Migrations.ApplicationDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SessionId");
-
-                    b.ToTable("UserSessions");
+                    b.ToTable("SessionSkillActivities");
                 });
 
-            modelBuilder.Entity("Domain.Entities.UserSessionQuestion", b =>
+            modelBuilder.Entity("Domain.Entities.SessionSkillActivityQuestion", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -148,15 +128,14 @@ namespace Infrastructure.Migrations.ApplicationDb
                     b.Property<int>("QuestionId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("QuestionId");
 
-                    b.ToTable("UserSessionQuestions");
+                    b.ToTable("SessionSkillActivityQuestions");
                 });
 
             modelBuilder.Entity("Domain.Entities.Question", b =>
@@ -167,29 +146,18 @@ namespace Infrastructure.Migrations.ApplicationDb
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.Session", "Session")
+                    b.HasOne("Domain.Entities.SessionSkillActivity", "SessionSkillActivity")
                         .WithMany()
-                        .HasForeignKey("SessionId")
+                        .HasForeignKey("SessionSkillActivityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("QuestionCategory");
 
-                    b.Navigation("Session");
+                    b.Navigation("SessionSkillActivity");
                 });
 
-            modelBuilder.Entity("Domain.Entities.UserSession", b =>
-                {
-                    b.HasOne("Domain.Entities.Session", "Session")
-                        .WithMany()
-                        .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Session");
-                });
-
-            modelBuilder.Entity("Domain.Entities.UserSessionQuestion", b =>
+            modelBuilder.Entity("Domain.Entities.SessionSkillActivityQuestion", b =>
                 {
                     b.HasOne("Domain.Entities.Question", "Question")
                         .WithMany()
