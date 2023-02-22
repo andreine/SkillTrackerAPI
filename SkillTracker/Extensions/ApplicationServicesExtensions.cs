@@ -11,6 +11,7 @@ namespace SkillTracker.Extensions
             services.AddScoped<ITokenService, TokenService>();
 
             services.AddScoped<IQuestionsService, QuestionsService>();
+            services.AddScoped<IEmployeeService, EmployeeService>();
 
             return services;
         }

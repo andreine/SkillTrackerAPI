@@ -1,4 +1,5 @@
-﻿using Domain.Entities.Identity;
+﻿using Domain.Dtos;
+using Domain.Entities.Identity;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,15 +15,17 @@ namespace SkillTracker.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly ITokenService _tokenService;
+        private readonly IEmployeeService _employeeService;
         private readonly RoleManager<IdentityRole> _roleManager;
 
         public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager,
-            ITokenService tokenService, RoleManager<IdentityRole> roleManager)
+            ITokenService tokenService, RoleManager<IdentityRole> roleManager, IEmployeeService employeeService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenService = tokenService;
             _roleManager = roleManager;
+            _employeeService = employeeService;
         }
 
 
@@ -118,10 +121,28 @@ namespace SkillTracker.Controllers
             });
         }
 
-        [HttpGet("getallusers")]
-        public async Task<IList<AppUser>> GetAllUsers()
+        [HttpGet("getAllEmployees")]
+        public async Task<IList<EmployeeDto>> GetAllUsers()
         {
-            return await _userManager.Users.ToListAsync();
+            return await _userManager.Users.Select(x => new EmployeeDto { 
+                Email = x.Email,
+                FirstName = x.FirstName,
+                Id = x.Id,
+                LastName = x.LastName,
+            }).ToListAsync();
+        }
+
+
+        [HttpGet("getEmployeeSessions/{userId}")]
+        public async Task<IList<EmployeeSessionsDto>> GetEmployeeSessions(string userId)
+        {
+            return await _employeeService.GetEmployeeSessions(userId);
+        }
+
+        [HttpPost("addEmployeeSession")]
+        public async Task<EmployeeSessionsDto> AddEmployeeSession(AddEmployeeSessionDto addEmployeeSessionDto)
+        {
+            return await _employeeService.AddEmployeeSession(addEmployeeSessionDto);
         }
 
 
