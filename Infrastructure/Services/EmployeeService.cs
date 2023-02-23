@@ -1,4 +1,5 @@
 ﻿using Domain.Dtos;
+using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Persistance;
 using Microsoft.EntityFrameworkCore;
@@ -17,9 +18,34 @@ namespace Infrastructure.Services
         {
             _context = context;
         }
-        public async Task<EmployeeSessionsDto > AddEmployeeSession(AddEmployeeSessionDto addEmployeeSessionDto)
+        public async Task<EmployeeSessionsDto> AddEmployeeSession(AddEmployeeSessionDto addEmployeeSessionDto)
         {
-            throw new NotImplementedException();
+
+            var session = _context.Sessions.FirstOrDefault(x => x.Id == addEmployeeSessionDto.SessionId);
+            var newSession = new UserSession
+            {
+                UserId = addEmployeeSessionDto.UserId,
+                IsCompleted = 0,
+                Session = session,
+                ActivationDate = DateTime.Now,
+            };
+
+            var createdSession = _context.UserSessions.Add(newSession);
+            await _context.SaveChangesAsync();
+
+
+            var returnDto = await _context.UserSessions
+                .Where(x => x.UserId == addEmployeeSessionDto.UserId && x.Session.Id == addEmployeeSessionDto.SessionId)
+                .Select(x => new EmployeeSessionsDto
+            {
+                Id = x.Id,
+                UserId = x.UserId,
+                ActivationDate = x.ActivationDate,
+                IsCompleted = x.IsCompleted,
+            }).FirstOrDefaultAsync();
+
+
+            return returnDto;
 
         }
 
@@ -31,6 +57,9 @@ namespace Infrastructure.Services
                 UserId = x.UserId,
                 ActivationDate = x.ActivationDate,
                 IsCompleted = x.IsCompleted,
+                SessionName = x.Session.Name,
+                SessionId = x.Session.Id
+
             }).ToListAsync();
 
             return employeeSessions;

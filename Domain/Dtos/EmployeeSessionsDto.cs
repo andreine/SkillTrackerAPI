@@ -12,5 +12,7 @@ namespace Domain.Dtos
         public string UserId { get; set; }
         public int IsCompleted { get; set; }
         public DateTime ActivationDate { get; set; }
+        public string SessionName { get; set; }
+        public int SessionId { get; set; }
     }
 }

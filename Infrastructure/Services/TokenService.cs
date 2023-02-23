@@ -40,7 +40,9 @@ namespace Infrastructure.Services
             };
 
 
-            if(userRole == "Manager")
+            claims.Add(new Claim("userId", user.Id));
+
+            if (userRole == "Manager")
             {
                 claims.Add(new Claim("permissions", "manage-skills"));
             }
