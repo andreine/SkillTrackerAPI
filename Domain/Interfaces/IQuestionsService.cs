@@ -15,8 +15,10 @@ namespace Domain.Interfaces
     {
         bool uploadFileToDatabase(WorkBook workbook, string sessionId);
         IList<Question> getAllSessionQuestions (string sessionId);
-        Task<IList<QuestionEmployeeDto>> getAllQuestionsForEmployee();
+        Task<IList<QuestionEmployeeDto>> GetEmployeeSessionQuestions(int sessionId);
         Task<string> AddNewSession(string sessionName);
         Task<IList<Session>> GetAllSessions();
+        void AddSubmitedSession(IList<SubmitedAnswer> answers, string userId, int sessionId);
+        Task<EmployeeSessionReportDto> GetEmployeeSessionReport(int sessionId, string userId);
     }
 }

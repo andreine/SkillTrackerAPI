@@ -6,14 +6,15 @@ using System.Threading.Tasks;
 
 namespace Domain.Dtos
 {
-    public class SessionSubmitAnswersDto
-    {
-        IList<SubmitedAnswer> submitedAnswers;
-    }
-
     public class SubmitedAnswer
     {
-        public string QuestionId { get; set; }
+        public int QuestionId { get; set; }
         public string Answered { get; set; }
+    }
+
+    public class SubmitedSession
+    {
+        public IList<SubmitedAnswer> Answers { get; set; }
+        public int SessionId { get; set; }
     }
 }

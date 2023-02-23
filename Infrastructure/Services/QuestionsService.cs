@@ -27,9 +27,50 @@ namespace Infrastructure.Services
             return _context.Questions.Where(x => Int32.Parse(sessionId) == x.Session.Id).ToList();
         }
 
-        public async Task<IList<QuestionEmployeeDto>> getAllQuestionsForEmployee()
+        public void AddSubmitedSession(IList<SubmitedAnswer> answers, string userId, int userSessionId)
         {
-            var questions =  await _context.Questions.Include(x => x.QuestionCategory).Select(x => new QuestionEmployeeDto
+
+            foreach (var answer in answers)
+            {
+                var answeredQuestion = new UserSessionQuestion();
+                var question = _context.Questions.Include(x => x.Session).Where(x => x.Id == answer.QuestionId).FirstOrDefault();
+                if(question.CorrectAnswer == answer.Answered)
+                {
+                    answeredQuestion.IsCorrect = 1;
+                }
+                else
+                {
+                    answeredQuestion.IsCorrect = 0;
+                }
+                answeredQuestion.UserId = userId;
+                answeredQuestion.Question = question;
+                _context.UserSessionQuestions.Add(answeredQuestion);
+            }
+            var employeeSession = _context.UserSessions.Where(x => x.Id == userSessionId).FirstOrDefault();
+            employeeSession.IsCompleted = 1;
+            _context.SaveChanges();
+
+        }
+
+
+        public async Task<EmployeeSessionReportDto> GetEmployeeSessionReport(int userSessionId, string userId)
+        {
+            var session = _context.UserSessions.Include(x => x.Session).Where(x => x.Id == userSessionId);
+
+
+            var employeeAnswers = _context.UserSessionQuestions.Include(x => x.Question).Where(x => x.Id == userSessionId);
+
+            return new EmployeeSessionReportDto();
+        }
+
+
+
+
+        public async Task<IList<QuestionEmployeeDto>> GetEmployeeSessionQuestions(int userSessionId)
+        {
+            var userSession = _context.UserSessions.Include(x => x.Session).Where(x => x.Id == userSessionId).FirstOrDefault();
+
+            var questions =  await _context.Questions.Where(x => x.Session.Id == userSession.Session.Id).Include(x => x.QuestionCategory).Select(x => new QuestionEmployeeDto
             {
                 Id = x.Id,
                 Name = x.Name,

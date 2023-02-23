@@ -6,7 +6,9 @@ using IronXL;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using SkillTracker.Dtos;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace SkillTracker.Controllers
 {
@@ -50,18 +52,44 @@ namespace SkillTracker.Controllers
         }
 
 
-        [HttpGet("getquestionsemployee")]
-        public async Task<IList<QuestionEmployeeDto>> GetQuestionsEmployee()
+        [HttpGet("GetEmployeeSessionQuestions/{sessionId}")]
+        public async Task<IList<QuestionEmployeeDto>> GetEmployeeSessionQuestions(int sessionId)
         {
-            var questions = await _questionsService.getAllQuestionsForEmployee();
+            var questions = await _questionsService.GetEmployeeSessionQuestions(sessionId);
             return questions;
         }
 
 
         [HttpPost("sessionsubmitanswers")]
-        public async Task<IActionResult> SessionSubmitAnswers(SessionSubmitAnswersDto sessionSubmitAnswers)
+        public async Task<ActionResult> SessionSubmitAnswers(SubmitedSession submitedSession)
         {
-            return Ok("DASD");
+            var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+            var handler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = handler.ReadJwtToken(token);
+            var userId = jwtSecurityToken.Claims.First(claim => claim.Type == "userId").Value;
+
+            _questionsService.AddSubmitedSession(submitedSession.Answers, userId, submitedSession.SessionId);
+
+            return Ok(new
+            {
+                userSessionId = submitedSession.SessionId
+            });
+
+        }
+
+
+        [HttpGet("getEmployeeSessionReport/{userSessionId}")]
+        public async Task<EmployeeSessionReportDto> GetEmployeeSessionReport(int userSessionId)
+        {
+            var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+            var handler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = handler.ReadJwtToken(token);
+            var userId = jwtSecurityToken.Claims.First(claim => claim.Type == "userId").Value;
+
+            var report = await _questionsService.GetEmployeeSessionReport(userSessionId, userId);
+
+            return report;
+
         }
 
 
