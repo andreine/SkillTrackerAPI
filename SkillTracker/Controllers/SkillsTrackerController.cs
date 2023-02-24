@@ -79,7 +79,7 @@ namespace SkillTracker.Controllers
 
 
         [HttpGet("getEmployeeSessionReport/{userSessionId}")]
-        public async Task<EmployeeSessionReportDto> GetEmployeeSessionReport(int userSessionId)
+        public async Task<List<EmployeeSessionReportDto>> GetEmployeeSessionReport(int userSessionId)
         {
             var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
             var handler = new JwtSecurityTokenHandler();

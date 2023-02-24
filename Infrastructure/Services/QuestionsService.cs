@@ -33,6 +33,7 @@ namespace Infrastructure.Services
             foreach (var answer in answers)
             {
                 var answeredQuestion = new UserSessionQuestion();
+                var userSession = _context.UserSessions.Where(x => x.Id == userSessionId).FirstOrDefault();
                 var question = _context.Questions.Include(x => x.Session).Where(x => x.Id == answer.QuestionId).FirstOrDefault();
                 if(question.CorrectAnswer == answer.Answered)
                 {
@@ -43,7 +44,8 @@ namespace Infrastructure.Services
                     answeredQuestion.IsCorrect = 0;
                 }
                 answeredQuestion.UserId = userId;
-                answeredQuestion.Question = question;
+                answeredQuestion.QuestionId = answer.QuestionId;
+                answeredQuestion.UserSession = userSession;
                 _context.UserSessionQuestions.Add(answeredQuestion);
             }
             var employeeSession = _context.UserSessions.Where(x => x.Id == userSessionId).FirstOrDefault();
@@ -53,14 +55,47 @@ namespace Infrastructure.Services
         }
 
 
-        public async Task<EmployeeSessionReportDto> GetEmployeeSessionReport(int userSessionId, string userId)
+        public async Task<List<EmployeeSessionReportDto>> GetEmployeeSessionReport(int userSessionId, string userId)
         {
-            var session = _context.UserSessions.Include(x => x.Session).Where(x => x.Id == userSessionId);
+            var session = _context.UserSessions.Include(x => x.Session).Where(x => x.Id == userSessionId).FirstOrDefault();
+            var questionsWithAnswers = _context.Questions.Include(x => x.Session).Include(x => x.QuestionCategory).Where(x => x.Session.Id == session.Session.Id);
+            var userSessionAnswers = await _context.UserSessionQuestions.Include(x => x.UserSession).Where(x => x.UserSession.Id == userSessionId).ToListAsync();
 
 
-            var employeeAnswers = _context.UserSessionQuestions.Include(x => x.Question).Where(x => x.Id == userSessionId);
+            var categoriesQuestionAnswers = new List<CategoryQuestionAnswer>();
+            foreach (var question in userSessionAnswers)
+            {
+                
+                var questionCategory = questionsWithAnswers.Where(x => x.Id == question.QuestionId).Select(x => x.QuestionCategory.Name).FirstOrDefault();
+                categoriesQuestionAnswers.Add(new CategoryQuestionAnswer
+                {
+                    CategoryName = questionCategory,
+                    IsCorrect = question.IsCorrect,
+                });
 
-            return new EmployeeSessionReportDto();
+            }
+
+            var finalResult = new List<EmployeeSessionReportDto>();
+
+            foreach (var x in categoriesQuestionAnswers)
+            {
+                var exists = finalResult.Where(final => final.CategoryName == x.CategoryName).FirstOrDefault();
+                if (exists == null)
+                {
+                    finalResult.Add(new EmployeeSessionReportDto
+                    {
+                        CategoryName = x.CategoryName,
+                        FinalScore = x.IsCorrect
+                    });
+                }
+                else
+                {
+                    exists.FinalScore = (exists.FinalScore + x.IsCorrect) / 2;
+                }
+            }
+
+
+            return finalResult;
         }
 
 
