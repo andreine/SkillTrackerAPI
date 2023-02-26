@@ -29,6 +29,15 @@ namespace Infrastructure.Services
 
         public void AddSubmitedSession(IList<SubmitedAnswer> answers, string userId, int userSessionId)
         {
+            var employeeSession = _context.UserSessions.Where(x => x.Id == userSessionId && x.IsCompleted != 0).FirstOrDefault();
+
+            if(employeeSession != null)
+            {
+               throw new Exception("dasdasdsa");
+            }
+
+            var existingEmployeeSession = _context.UserSessions.Where(x => x.Id == userSessionId).FirstOrDefault();
+
 
             foreach (var answer in answers)
             {
@@ -48,8 +57,7 @@ namespace Infrastructure.Services
                 answeredQuestion.UserSession = userSession;
                 _context.UserSessionQuestions.Add(answeredQuestion);
             }
-            var employeeSession = _context.UserSessions.Where(x => x.Id == userSessionId).FirstOrDefault();
-            employeeSession.IsCompleted = 1;
+            existingEmployeeSession.IsCompleted = 1;
             _context.SaveChanges();
 
         }
@@ -96,6 +104,34 @@ namespace Infrastructure.Services
 
 
             return finalResult;
+        }
+
+
+
+
+
+        public async Task<List<QuestionsReportDto>> GetEmployeeQuestionReport(int userSessionId, string userId)
+        {
+            var session = _context.UserSessions.Include(x => x.Session).Where(x => x.Id == userSessionId).FirstOrDefault();
+            var questionsWithAnswers = _context.Questions.Include(x => x.Session).Include(x => x.QuestionCategory).Where(x => x.Session.Id == session.Session.Id);
+            var userSessionAnswers = await _context.UserSessionQuestions.Include(x => x.UserSession).Where(x => x.UserSession.Id == userSessionId).ToListAsync();
+
+            var questionReport = new List<QuestionsReportDto>();
+
+            foreach(var answer in userSessionAnswers)
+            {
+
+                var questionWithAnswer = questionsWithAnswers.Where(x => x.Id == answer.QuestionId).FirstOrDefault();
+
+                questionReport.Add(new QuestionsReportDto
+                {
+                    IsCorrect = answer.IsCorrect,
+                    QuestionCategory = questionWithAnswer.QuestionCategory.Name,
+                    QuestionName = questionWithAnswer.Name
+                });
+            }
+      
+            return questionReport;
         }
 
 

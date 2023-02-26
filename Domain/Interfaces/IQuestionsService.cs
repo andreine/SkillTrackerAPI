@@ -20,5 +20,6 @@ namespace Domain.Interfaces
         Task<IList<Session>> GetAllSessions();
         void AddSubmitedSession(IList<SubmitedAnswer> answers, string userId, int sessionId);
         Task<List<EmployeeSessionReportDto>> GetEmployeeSessionReport(int sessionId, string userId);
+        Task<List<QuestionsReportDto>> GetEmployeeQuestionReport(int userSessionId, string userId);
     }
 }

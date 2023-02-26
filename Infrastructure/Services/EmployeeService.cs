@@ -1,7 +1,9 @@
 ﻿using Domain.Dtos;
 using Domain.Entities;
+using Domain.Entities.Identity;
 using Domain.Interfaces;
 using Infrastructure.Persistance;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -14,9 +16,12 @@ namespace Infrastructure.Services
     public class EmployeeService : IEmployeeService
     {
         ApplicationDbContext _context;
-        public EmployeeService(ApplicationDbContext context)
+        private readonly UserManager<AppUser> _userManager;
+
+        public EmployeeService(ApplicationDbContext context, UserManager<AppUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
         public async Task<EmployeeSessionsDto> AddEmployeeSession(AddEmployeeSessionDto addEmployeeSessionDto)
         {
@@ -46,6 +51,22 @@ namespace Infrastructure.Services
 
 
             return returnDto;
+
+        }
+
+        public async Task<EmployeeDetailsDto> GetEmployeeDetailsOnSessionId(int userSessionId)
+        {
+            var userSession = await _context.UserSessions.Where(x => x.Id == userSessionId).FirstOrDefaultAsync();
+
+            var userDetails = await _userManager.FindByIdAsync(userSession.UserId);
+
+            return new EmployeeDetailsDto
+            {
+                Email = userDetails.Email,
+                FirstName = userDetails.FirstName,
+                LastName = userDetails.LastName,
+                UserId = userDetails.Id
+            };
 
         }
 

@@ -146,6 +146,13 @@ namespace SkillTracker.Controllers
         }
 
 
+        [HttpGet("GetEmployeeDetailsOnSessionId/{userSessionId}")]
+        public async Task<EmployeeDetailsDto> GetEmployeeDetailsOnSessionId(int userSessionId)
+        {
+            return await _employeeService.GetEmployeeDetailsOnSessionId(userSessionId);
+        }
+
+
         [HttpGet("emailexists")]
         public async Task<ActionResult<bool>> CheckEmailExistsAsync([FromQuery] string email)
         {

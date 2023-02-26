@@ -89,7 +89,20 @@ namespace SkillTracker.Controllers
             var report = await _questionsService.GetEmployeeSessionReport(userSessionId, userId);
 
             return report;
+        }
 
+
+        [HttpGet("getEmployeeQuestionReport/{userSessionId}")]
+        public async Task<List<QuestionsReportDto>> GetEmployeeQuestionReport(int userSessionId)
+        {
+            var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+            var handler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = handler.ReadJwtToken(token);
+            var userId = jwtSecurityToken.Claims.First(claim => claim.Type == "userId").Value;
+
+            var report = await _questionsService.GetEmployeeQuestionReport(userSessionId, userId);
+
+            return report;
         }
 
 
