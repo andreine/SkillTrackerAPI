@@ -13,5 +13,6 @@ namespace Domain.Interfaces
         Task<IList<EmployeeSessionsDto>> GetEmployeeSessions(string UserId);
         Task<EmployeeSessionsDto> AddEmployeeSession(AddEmployeeSessionDto addEmployeeSessionDto);
         Task<EmployeeDetailsDto> GetEmployeeDetailsOnSessionId(int userSessionId);
+        Task<EmployeeDetailsDto> GetUserProfile(string userId);
     }
 }

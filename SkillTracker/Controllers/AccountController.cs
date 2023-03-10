@@ -4,7 +4,9 @@ using Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Net.Http.Headers;
 using SkillTracker.Dtos;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace SkillTracker.Controllers
 {
@@ -150,6 +152,18 @@ namespace SkillTracker.Controllers
         public async Task<EmployeeDetailsDto> GetEmployeeDetailsOnSessionId(int userSessionId)
         {
             return await _employeeService.GetEmployeeDetailsOnSessionId(userSessionId);
+        }
+
+
+        [HttpGet("getUserProfile")]
+        public async Task<EmployeeDetailsDto> GetUserProfile()
+        {
+            var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+            var handler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = handler.ReadJwtToken(token);
+            var userId = jwtSecurityToken.Claims.First(claim => claim.Type == "userId").Value;
+
+            return await _employeeService.GetUserProfile(userId);
         }
 
 

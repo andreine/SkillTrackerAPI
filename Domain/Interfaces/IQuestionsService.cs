@@ -1,7 +1,7 @@
 ﻿using Domain.Dtos;
 using Domain.Entities;
 using Domain.Entities.Identity;
-using IronXL;
+using NPOI.XSSF.UserModel;
 using SkillTracker.Dtos;
 using System;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace Domain.Interfaces
 {
     public interface IQuestionsService
     {
-        bool uploadFileToDatabase(WorkBook workbook, string sessionId);
+        bool uploadFileToDatabase(XSSFWorkbook workbook, string sessionId);
         IList<Question> getAllSessionQuestions (string sessionId);
         Task<IList<QuestionEmployeeDto>> GetEmployeeSessionQuestions(int sessionId);
         Task<string> AddNewSession(string sessionName);

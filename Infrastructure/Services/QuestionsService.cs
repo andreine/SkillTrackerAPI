@@ -2,8 +2,8 @@
 using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Persistance;
-using IronXL;
 using Microsoft.EntityFrameworkCore;
+using NPOI.XSSF.UserModel;
 using SkillTracker.Dtos;
 using System;
 using System.Collections.Generic;
@@ -24,7 +24,7 @@ namespace Infrastructure.Services
 
         public IList<Question> getAllSessionQuestions(string sessionId)
         {
-            return _context.Questions.Where(x => Int32.Parse(sessionId) == x.Session.Id).ToList();
+            return _context.Questions.Include(x => x.QuestionCategory).Where(x => Int32.Parse(sessionId) == x.Session.Id).ToList();
         }
 
         public void AddSubmitedSession(IList<SubmitedAnswer> answers, string userId, int userSessionId)
@@ -155,59 +155,63 @@ namespace Infrastructure.Services
             return questions;
         }
 
-        public bool uploadFileToDatabase(WorkBook workbook, string sessionId)
+        public bool uploadFileToDatabase(XSSFWorkbook workbook, string sessionId)
         {
-            var workSheet = workbook.WorkSheets[0];
+            var workSheet = workbook.GetSheetAt(0);
 
-            var rowNumber = workSheet.Rows.Length;
+            var rowNumber = workSheet.LastRowNum ;
 
 
-            for (var i = 2; i <= rowNumber; i++)
+            for (var i = 1; i <= rowNumber; i++)
             {
-                var data = workSheet.GetRange($"A{i}:G{i}").ToList();
+                var rowData = workSheet.GetRow(i);
+
+                var countRowCells = rowData.LastCellNum;
+
                 var newQuestion = new Domain.Entities.Question();
 
-                var existingCategory = _context.QuestionCategories.FirstOrDefault(x => x.Name == data[0].Text);
-                if (existingCategory == null)
-                {
-                    var newQuestionCategory = new Domain.Entities.QuestionCategory
+                    var existingCategory = _context.QuestionCategories.FirstOrDefault(x => x.Name == rowData.GetCell(0).ToString());
+                    if (existingCategory == null)
                     {
-                        Name = data[0].Text,
-                    };
-                    var sessionToAdd = _context.Sessions.FirstOrDefault(x => x.Id == Int32.Parse(sessionId));
-                    newQuestion = new Domain.Entities.Question
+                        var newQuestionCategory = new Domain.Entities.QuestionCategory
+                        {
+                            Name = rowData.GetCell(0).ToString(),
+                        };
+                        var sessionToAdd = _context.Sessions.FirstOrDefault(x => x.Id == Int32.Parse(sessionId));
+                        newQuestion = new Domain.Entities.Question
+                        {
+                            Name = rowData.GetCell(0).ToString(),
+                            FirstAnswer = rowData.GetCell(1).ToString(),
+                            SecondAnswer = rowData.GetCell(2).ToString(),
+                            ThirdAnswer = rowData.GetCell(3).ToString(),
+                            FourthAnswer = rowData.GetCell(4).ToString(),
+                            CorrectAnswer = rowData.GetCell(5).ToString(),
+                            QuestionCategory = newQuestionCategory,
+                            Session = sessionToAdd
+                        };
+                        _context.QuestionCategories.Add(newQuestionCategory);
+
+                    }
+                    else
                     {
-                        Name = data[1].Text,
-                        FirstAnswer = data[2].Text,
-                        SecondAnswer = data[3].Text,
-                        ThirdAnswer = data[4].Text,
-                        FourthAnswer = data[5].Text,
-                        CorrectAnswer = data[6].Text,
-                        QuestionCategory = newQuestionCategory,
-                        Session = sessionToAdd
-                    };
-                    _context.QuestionCategories.Add(newQuestionCategory);
+                        var sessionToAdd = _context.Sessions.FirstOrDefault(x => x.Id == Int32.Parse(sessionId));
 
-                }
-                else
-                {
-                    var sessionToAdd = _context.Sessions.FirstOrDefault(x => x.Id == Int32.Parse(sessionId));
+                        newQuestion = new Domain.Entities.Question
+                        {
+                            Name = rowData.GetCell(0).ToString(),
+                            FirstAnswer = rowData.GetCell(1).ToString(),
+                            SecondAnswer = rowData.GetCell(2).ToString(),
+                            ThirdAnswer = rowData.GetCell(3).ToString(),
+                            FourthAnswer = rowData.GetCell(4).ToString(),
+                            CorrectAnswer = rowData.GetCell(5).ToString(),
+                            QuestionCategory = existingCategory,
+                            Session = sessionToAdd
 
-                    newQuestion = new Domain.Entities.Question
-                    {
-                        Name = data[1].Text,
-                        FirstAnswer = data[2].Text,
-                        SecondAnswer = data[3].Text,
-                        ThirdAnswer = data[4].Text,
-                        FourthAnswer = data[5].Text,
-                        CorrectAnswer = data[6].Text,
-                        QuestionCategory = existingCategory,
-                        Session = sessionToAdd
+                        };
 
-                    };
+                    }
+                    _context.Questions.Add(newQuestion);
 
-                }
-                _context.Questions.Add(newQuestion);
 
             }
             _context.SaveChanges();

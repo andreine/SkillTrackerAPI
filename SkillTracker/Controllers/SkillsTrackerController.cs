@@ -2,11 +2,11 @@
 using Domain.Entities;
 using Domain.Entities.Identity;
 using Domain.Interfaces;
-using IronXL;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
+using NPOI.XSSF.UserModel;
 using SkillTracker.Dtos;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -32,8 +32,8 @@ namespace SkillTracker.Controllers
         public async Task<IActionResult> UploadSkills([FromForm]FormQuestionsDto formInformation)
         {
 
-            WorkBook workBook = WorkBook.LoadExcel(formInformation.File.OpenReadStream());
-            _questionsService.uploadFileToDatabase(workBook, formInformation.SessionId);
+            XSSFWorkbook objWorkbook = new XSSFWorkbook(formInformation.File.OpenReadStream());
+            _questionsService.uploadFileToDatabase(objWorkbook, formInformation.SessionId);
 
 
 

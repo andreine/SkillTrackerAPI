@@ -86,5 +86,22 @@ namespace Infrastructure.Services
             return employeeSessions;
 
         }
+
+
+        public async Task<EmployeeDetailsDto> GetUserProfile(string userId)
+        {
+            var userDetails = await _userManager.FindByIdAsync(userId);
+
+            return new EmployeeDetailsDto
+            {
+                Email = userDetails.Email,
+                FirstName = userDetails.FirstName,
+                LastName = userDetails.LastName,
+                UserId = userDetails.Id
+            };
+
+        }
+
+
     }
 }
