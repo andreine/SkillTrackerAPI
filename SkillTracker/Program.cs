@@ -2,11 +2,12 @@ using Infrastructure.Identity;
 using Infrastructure.Persistance;
 using Microsoft.EntityFrameworkCore;
 using SkillTracker.Extensions;
+using SkillTracker.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppIdentityDbContext>(x =>
 {

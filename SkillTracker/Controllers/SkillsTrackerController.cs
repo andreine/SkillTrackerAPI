@@ -1,4 +1,5 @@
-﻿using Domain.Dtos;
+﻿using AutoMapper;
+using Domain.Dtos;
 using Domain.Entities;
 using Domain.Entities.Identity;
 using Domain.Interfaces;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
+using NPOI.SS.Formula.Functions;
 using NPOI.XSSF.UserModel;
 using SkillTracker.Dtos;
 using System.IdentityModel.Tokens.Jwt;
@@ -20,12 +22,14 @@ namespace SkillTracker.Controllers
     public class SkillsTrackerController : BaseApiController
     {
 
+        private readonly IMapper _mapper;
 
         private readonly IQuestionsService _questionsService;
 
-        public SkillsTrackerController(IQuestionsService questionsService)
+        public SkillsTrackerController(IQuestionsService questionsService, IMapper mapper)
         {
             _questionsService = questionsService;
+            _mapper = mapper;
         }
 
         [HttpPost("uploadSkills")]
@@ -46,9 +50,10 @@ namespace SkillTracker.Controllers
 
         [HttpGet("getsessionquestions/{sessionId}")]
         [Authorize(Policy = "ManageSkills")]
-        public async Task<IList<Question>> GetSessionQuestions(string sessionId)
+        public async Task<IList<SessionQuestionsDto>> GetSessionQuestions(string sessionId)
         {
-            return _questionsService.getAllSessionQuestions(sessionId);
+            var questions = _questionsService.getAllSessionQuestions(sessionId);
+            return _mapper.Map<IList<Question>, IList<SessionQuestionsDto>>(questions);
         }
 
 
