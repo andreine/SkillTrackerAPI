@@ -180,12 +180,12 @@ namespace Infrastructure.Services
                         var sessionToAdd = _context.Sessions.FirstOrDefault(x => x.Id == Int32.Parse(sessionId));
                         newQuestion = new Domain.Entities.Question
                         {
-                            Name = rowData.GetCell(0).ToString(),
-                            FirstAnswer = rowData.GetCell(1).ToString(),
-                            SecondAnswer = rowData.GetCell(2).ToString(),
-                            ThirdAnswer = rowData.GetCell(3).ToString(),
-                            FourthAnswer = rowData.GetCell(4).ToString(),
-                            CorrectAnswer = rowData.GetCell(5).ToString(),
+                            Name = rowData.GetCell(1).ToString(),
+                            FirstAnswer = rowData.GetCell(2).ToString(),
+                            SecondAnswer = rowData.GetCell(3).ToString(),
+                            ThirdAnswer = rowData.GetCell(4).ToString(),
+                            FourthAnswer = rowData.GetCell(5).ToString(),
+                            CorrectAnswer = rowData.GetCell(6).ToString(),
                             QuestionCategory = newQuestionCategory,
                             Session = sessionToAdd
                         };
@@ -198,12 +198,12 @@ namespace Infrastructure.Services
 
                         newQuestion = new Domain.Entities.Question
                         {
-                            Name = rowData.GetCell(0).ToString(),
-                            FirstAnswer = rowData.GetCell(1).ToString(),
-                            SecondAnswer = rowData.GetCell(2).ToString(),
-                            ThirdAnswer = rowData.GetCell(3).ToString(),
-                            FourthAnswer = rowData.GetCell(4).ToString(),
-                            CorrectAnswer = rowData.GetCell(5).ToString(),
+                            Name = rowData.GetCell(1).ToString(),
+                            FirstAnswer = rowData.GetCell(2).ToString(),
+                            SecondAnswer = rowData.GetCell(3).ToString(),
+                            ThirdAnswer = rowData.GetCell(4).ToString(),
+                            FourthAnswer = rowData.GetCell(5).ToString(),
+                            CorrectAnswer = rowData.GetCell(6).ToString(),
                             QuestionCategory = existingCategory,
                             Session = sessionToAdd
 

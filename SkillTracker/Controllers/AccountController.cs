@@ -1,6 +1,7 @@
 ﻿using Domain.Dtos;
 using Domain.Entities.Identity;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -52,7 +53,6 @@ namespace SkillTracker.Controllers
         }
 
 
-
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
@@ -82,7 +82,7 @@ namespace SkillTracker.Controllers
             };
         }
 
-
+        [Authorize(Policy = "ManageSkills")]
         [HttpPost("createaccountforuser")]
         public async Task<ActionResult<UserDto>> CreateAccountForUser(NewUserAccountDto newUserDto)
         {
@@ -141,6 +141,7 @@ namespace SkillTracker.Controllers
             return await _employeeService.GetEmployeeSessions(userId);
         }
 
+        [Authorize(Policy = "ManageSkills")]
         [HttpPost("addEmployeeSession")]
         public async Task<EmployeeSessionsDto> AddEmployeeSession(AddEmployeeSessionDto addEmployeeSessionDto)
         {

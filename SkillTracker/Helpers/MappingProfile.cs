@@ -11,12 +11,6 @@ namespace SkillTracker.Helpers
         {
             CreateMap<Question, SessionQuestionsDto>()
                 .ForMember(d => d.QuestionCategory, o => o.MapFrom(s => s.QuestionCategory.Name));
-
-
-       
-
         }
-
-
     }
 }
